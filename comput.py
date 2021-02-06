@@ -13,8 +13,8 @@ def comput(path1,path2):
     PSNR = peak_signal_noise_ratio(img1, img2)
     return SSIM,PSNR
 if __name__ == "__main__":
-    gt_List = glob.glob(r"dataset/testdataset/outdoor/gt/*")
-    _list = glob.glob(r"test_result/outdoor/wave/*")
+    gt_List = glob.glob(r"dataset/test set/outdoor/gt/*")   #test set - groundtruth image
+    _list = glob.glob(r"test_result/outdoor/wave/*")   #model tested  result
     SSIM = []
     PSNR = []
 

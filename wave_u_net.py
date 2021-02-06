@@ -75,13 +75,9 @@ class WaveUnpool(nn.Module):
             raise NotImplementedError
 
 class CA(nn.Module):
-    """
-    通道注意力
-    """
 
     def __init__(self, C, r):
         super(CA, self).__init__()
-        #self.DreLU = DyReLUA(C // r)
         self.block = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
             nn.Conv2d(C, C // r, 1, padding=0, bias=True),
@@ -92,7 +88,6 @@ class CA(nn.Module):
 
     def forward(self, input):
         y = self.block(input)
-
         return input * y
 
 
@@ -142,10 +137,6 @@ class LAST_U_net(nn.Module):
         self.WP_Depth_1_4 = WavePool(1)
         self.WP_Depth_1_8 = WavePool(1)
         self.WP_Depth_1_16 = WavePool(1)
-        # self.P_p1_Depth = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        # self.P_p2_Depth = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        # self.P_p3_Depth = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        # self.P_p4_Depth = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
         self.P_c1_Depth = Conv2d_Relu(1, 64)
         self.P_c2_Depth = Conv2d_Relu(1, 128)
         self.P_c3_Depth = Conv2d_Relu(1, 256)
@@ -223,14 +214,9 @@ class LAST_U_net(nn.Module):
         self.convl9 = RAC(192, 64)
         self.conv20 = RAC(128, 64)
         self.conv21 = Conv2d_Relu(64, 3)
-        # self.BiLSTM512 = BILSTM(512, 512)
-        # self.BiLSTM256 = BILSTM(256, 256)
-        # self.BiLSTM128 = BILSTM(128, 128)
-        # self.BiLSTM64 = BILSTM(64, 64)
-        #self.waveunpool
+
     def forward(self, Depth, Haze):
         D_py1 = self.WP_Depth_1_2(Depth)[0]
-        #D_py1 = self.P_p1_Depth(Depth)
         F_py1 = self.P_c1_Depth(D_py1)
         D_py2 = self.WP_Depth_1_4(D_py1)[0]
         F_py2 = self.P_c2_Depth(D_py2)
@@ -279,8 +265,6 @@ class LAST_U_net(nn.Module):
         Haze_up_6 = self.up6(Haze_c5)
         Depth_up_6 = self.upl6(Depth_c5)
 
-        #Haze_up_6, Depth_up_6 = self.BiLSTM512(Haze_up_6, Depth_up_6)
-
         Haze_concat6 = torch.cat([Depth_up_6, Haze_up_6, Haze_c4], dim=1)
         Depth_concat6 = torch.cat([Haze_up_6, Depth_up_6, Depth_c4], dim=1)
         Haze_c6 = self.conv6(Haze_concat6)
@@ -288,8 +272,6 @@ class LAST_U_net(nn.Module):
 
         Haze_up_7 = self.up7(Haze_c6)
         Depth_up_7 = self.upl7(Depth_c6)
-
-        #Haze_up_7, Depth_up_7 = self.BiLSTM256(Haze_up_7, Depth_up_7)
 
         Haze_concat7 = torch.cat([Depth_up_7, Haze_up_7, Haze_c3], dim=1)
         Depth_concat7 = torch.cat([Haze_up_7, Depth_up_7, Depth_c3], dim=1)
@@ -299,8 +281,6 @@ class LAST_U_net(nn.Module):
         Haze_up_8 = self.up8(Haze_c7)
         Depth_up_8 = self.upl8(Depth_c7)
 
-        #Haze_up_8, Depth_up_8 = self.BiLSTM128(Haze_up_8, Depth_up_8)
-
         Haze_concat8 = torch.cat([Depth_up_8, Haze_up_8, Haze_c2], dim=1)
         Depth_concat8 = torch.cat([Haze_up_8, Depth_up_8, Depth_c2], dim=1)
         Haze_c8 = self.conv8(Haze_concat8)
@@ -308,8 +288,6 @@ class LAST_U_net(nn.Module):
 
         Haze_up_9 = self.up9(Haze_c8)
         Depth_up_9 = self.upl9(Depth_c8)
-
-        #Haze_up_9, Depth_up_9 = self.BiLSTM64(Haze_up_9, Depth_up_9)
 
         Haze_concat9 = torch.cat([Depth_up_9, Haze_up_9, Haze_c1], dim=1)
         Depth_concat9 = torch.cat([Haze_up_9, Depth_up_9, Depth_c1], dim=1)
